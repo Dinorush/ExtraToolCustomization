@@ -22,7 +22,7 @@ namespace ExtraToolCustomization
                 ToolDataManager.Current.Init();
             }
             else
-                new Harmony(MODNAME).PatchAll(typeof(SentryGunPatches_BugFix));
+                new Harmony(MODNAME).PatchAll(typeof(SentryGunPatches_BurstFix));
             Log.LogMessage("Loaded " + MODNAME);
 
         }

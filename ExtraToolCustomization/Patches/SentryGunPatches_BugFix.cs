@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ExtraToolCustomization.Patches
 {
     [HarmonyPatch]
-    internal static class SentryGunPatches_BugFix
+    internal static class SentryGunPatches_BurstFix
     {
         [HarmonyPatch(typeof(SentryGunInstance_Firing_Bullets), nameof(SentryGunInstance_Firing_Bullets.StartFiring))]
         [HarmonyWrapSafe]
@@ -21,7 +21,11 @@ namespace ExtraToolCustomization.Patches
         {
             __instance.m_burstTimer = Clock.Time + __instance.m_archetypeData.BurstDelay;
         }
+    }
 
+    [HarmonyPatch]
+    internal static class SentryGunPatches_ShotgunFix
+    {
         private static Vector3? _cachedDir = null;
         [HarmonyPatch(typeof(SentryGunInstance_Firing_Bullets), nameof(SentryGunInstance_Firing_Bullets.TriggerSingleFireAudio))]
         [HarmonyWrapSafe]
