@@ -124,7 +124,7 @@ namespace ExtraToolCustomization.ToolData
             _liveEditListener.StopListen();
 
             LoadDirectory("Mine", MineTemplate.Template);
-            //LoadDirectory<SentryData>("Sentry");
+            LoadDirectory("Sentry", SentryTemplate.Template);
 
             _liveEditListener.StartListen();
         }

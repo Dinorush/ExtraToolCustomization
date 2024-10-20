@@ -8,5 +8,6 @@ namespace ExtraToolCustomization.ToolData
         [JsonIgnore]
         public uint ItemID { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
+        public bool BackDamage { get; set; } = false;
     }
 }

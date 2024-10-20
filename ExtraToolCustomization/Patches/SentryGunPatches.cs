@@ -1,4 +1,6 @@
 ﻿using CellMenu;
+using ExtraToolCustomization.ToolData;
+using ExtraToolCustomization.Utils;
 using GameData;
 using Gear;
 using HarmonyLib;
@@ -18,6 +20,20 @@ namespace ExtraToolCustomization.Patches
         private static void Pre_LoadData(GearIDRange idRange)
         {
             CacheArchetype(idRange);
+        }
+
+        [HarmonyPatch(typeof(CM_InventorySlotItem), nameof(CM_InventorySlotItem.LoadData))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_LoadData(CM_InventorySlotItem __instance)
+        {
+            if (_cachedArchetype != null)
+            {
+                __instance.GearDescription = _cachedArchetype.Description;
+                __instance.GearArchetypeName = _cachedArchetype.PublicName;
+                __instance.m_subTitleText.text = __instance.m_archetypePrefix + __instance.GearArchetypeName;
+                TMPro.TMP_UpdateManager.RegisterTextElementForGraphicRebuild(__instance.m_subTitleText);
+            }
         }
 
         [HarmonyPatch(typeof(CM_PageExpeditionSuccess), nameof(CM_PageExpeditionSuccess.TryGetArchetypeName))]
@@ -87,6 +103,22 @@ namespace ExtraToolCustomization.Patches
         {
             if (_cachedArchetype != null)
                 __result = _cachedArchetype;
+        }
+
+        [HarmonyPatch(typeof(BulletWeapon), nameof(BulletWeapon.BulletHit))]
+        [HarmonyPriority(Priority.Low)]
+        [HarmonyPrefix]
+        private static void SetBackDamage(ref Weapon.WeaponHitData weaponRayData, ref bool allowDirectionalBonus)
+        {
+            if (allowDirectionalBonus && weaponRayData.vfxBulletHit == null) return;
+
+            PlayerAgent source = weaponRayData.owner;
+            if (!PlayerBackpackManager.TryGetBackpack(source.Owner, out var backpack)) return;
+            if (!backpack.TryGetBackpackItem(InventorySlot.GearClass, out var item)) return;
+            var data = ToolDataManager.Current.GetOfflineData<SentryData>(item.GearIDRange.GetOfflineID());
+
+            if (data != null)
+                allowDirectionalBonus = data.BackDamage;
         }
     }
 }
