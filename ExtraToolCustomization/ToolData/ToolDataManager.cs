@@ -91,7 +91,7 @@ namespace ExtraToolCustomization.ToolData
                 if (data.ItemID != 0)
                 {
                     if (ToolDataDict<T>.ItemData.ContainsKey(data.ItemID))
-                        DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ItemID} detected. Previous name: {ToolDataDict<T>.OfflineData[data.ItemID].Name}, new name: {data.Name}");
+                        DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ItemID} detected. Previous name: {ToolDataDict<T>.ItemData[data.ItemID].Name}, new name: {data.Name}");
                     ToolDataDict<T>.ItemData[data.ItemID] = data;
                 }
             }
