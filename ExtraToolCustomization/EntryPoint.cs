@@ -7,7 +7,7 @@ using ExtraToolCustomization.Patches;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.1.1")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.1.2")]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin
     {
