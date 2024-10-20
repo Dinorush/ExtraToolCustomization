@@ -10,6 +10,17 @@ namespace ExtraToolCustomization.Patches
     [HarmonyPatch]
     internal static class MineDeployerPatches
     {
+        [HarmonyPatch(typeof(MineDeployerFirstPerson), nameof(MineDeployerFirstPerson.OnGearSpawnComplete))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_Setup(MineDeployerFirstPerson __instance)
+        {
+            uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
+            var data = ToolDataManager.Current.GetOfflineData<MineData>(offlineID);
+            if (data != null)
+                __instance.m_timeBetweenPlacements = data.PlacementTime;
+        }
+
         [HarmonyPatch(typeof(PlayerBotActionDeployTripMine), nameof(PlayerBotActionDeployTripMine.PlaceTripMine))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]

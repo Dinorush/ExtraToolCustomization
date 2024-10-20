@@ -13,5 +13,6 @@
         public float DamageMin { get; set; } = 0;
         public float DamageMax { get; set; } = 0;
         public float Force { get; set; } = 0;
+        public float PlacementTime { get; set; } = 0;
     }
 }
