@@ -6,7 +6,6 @@
         {
             new()
             {
-                OfflineID = 20,
                 Name = "Mine Deployer",
                 Delay = 0.25f,
                 Radius = 2.5f,
@@ -18,7 +17,6 @@
             },
             new()
             {
-                ItemID = 139,
                 Name = "Consumable Mine",
                 Delay = 0.25f,
                 Radius = 2f,
