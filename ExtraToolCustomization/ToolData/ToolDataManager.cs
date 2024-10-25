@@ -161,5 +161,16 @@ namespace ExtraToolCustomization.ToolData
 
         public T? GetItemData<T>(uint id) where T : IToolData => ToolDataDict<T>.ItemData.GetValueOrDefault(id);
         public T? GetOfflineData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
+        public T? GetData<T>(uint offlineID, uint itemID) where T : IToolData
+        {
+            T? data = default;
+            if (offlineID != 0)
+                data = GetOfflineData<T>(offlineID);
+
+            if (data == null && itemID != 0)
+                data = GetItemData<T>(itemID);
+
+            return data;
+        }
     }
 }

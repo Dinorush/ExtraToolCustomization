@@ -16,7 +16,7 @@ namespace ExtraToolCustomization
         public override void Load()
         {
             Log.LogMessage("Loading " + MODNAME);
-            if (MTFOWrapper.HasMTFO)
+            if (MTFOWrapper.HasMTFO && MTFOWrapper.HasCustomContent)
             {
                 new Harmony(MODNAME).PatchAll();
                 ToolDataManager.Current.Init();

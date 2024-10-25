@@ -13,8 +13,7 @@
                 DistanceMax = 15f,
                 DamageMin = 15f,
                 DamageMax = 50f,
-                Force = 1000f,
-                PlacementTime = 2,
+                Force = 1000f
             },
             new()
             {

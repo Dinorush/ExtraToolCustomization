@@ -63,7 +63,7 @@ namespace ExtraToolCustomization.Patches
 
         private static void CacheArchetype(GearIDRange idRange)
         {
-            if (_cachedRange == idRange) return;
+            if (_cachedRange != null && _cachedRange.Pointer == idRange.Pointer) return;
 
             _cachedRange = idRange;
             _cachedArchetype = null;

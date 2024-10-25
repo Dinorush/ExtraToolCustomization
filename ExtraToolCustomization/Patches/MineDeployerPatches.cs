@@ -16,15 +16,18 @@ namespace ExtraToolCustomization.Patches
         private static void Post_Setup(MineDeployerFirstPerson __instance)
         {
             uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
-            var data = ToolDataManager.Current.GetOfflineData<MineData>(offlineID);
+            var data = ToolDataManager.Current.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID);
             if (data != null)
-                __instance.m_timeBetweenPlacements = data.PlacementTime;
+            {
+                __instance.m_interactPlaceItem.InteractDuration = data.PlacementTime;
+                __instance.m_timeBetweenPlacements = data.PlacementCooldown;
+            }
         }
 
         [HarmonyPatch(typeof(PlayerBotActionDeployTripMine), nameof(PlayerBotActionDeployTripMine.PlaceTripMine))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
-        private static void Pre_PlaceMine(PlayerBotActionDeployTripMine __instance)
+        private static void Pre_PlaceMineBot(PlayerBotActionDeployTripMine __instance)
         {
             if (!SNet.Master) return;
 
@@ -71,6 +74,22 @@ namespace ExtraToolCustomization.Patches
             if (data == null) return;
 
             MineDeployerManager.ApplyDataToMine(explosive, data);
+        }
+
+        [HarmonyPatch(typeof(MineDeployerFirstPerson), nameof(MineDeployerFirstPerson.OnStickyMineSpawned))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_DeployedMine(MineDeployerFirstPerson __instance, ISyncedItem item)
+        {
+            if (__instance.m_isConsumable) return;
+
+            uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
+            var data = ToolDataManager.Current.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID);
+            if (data == null) return;
+
+            MineDeployerInstance? mineDeployerInstance = item.GetItem().TryCast<MineDeployerInstance>();
+            if (mineDeployerInstance != null)
+                mineDeployerInstance.PickupInteraction.Cast<Interact_Timed>().InteractDuration = data.PickupTime;
         }
     }
 }
