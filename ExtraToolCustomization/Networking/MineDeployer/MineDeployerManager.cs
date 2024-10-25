@@ -58,7 +58,7 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             ApplyDataToMine(explosive, data);
         }
 
-        public static MineData? GetMineData(MineDeployerID deployerID) => ToolDataManager.Current.GetData<MineData>(deployerID.offlineID, deployerID.itemID);
+        public static MineData? GetMineData(MineDeployerID deployerID) => ToolDataManager.GetData<MineData>(deployerID.offlineID, deployerID.itemID, 0);
 
         public static void ApplyDataToMine(MineDeployerInstance_Detonate_Explosive explosive, MineData data)
         {

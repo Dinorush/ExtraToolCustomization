@@ -73,6 +73,7 @@ namespace ExtraToolCustomization.ToolData
             {
                 ToolDataDict<T>.OfflineData.Remove(data.OfflineID);
                 ToolDataDict<T>.ItemData.Remove(data.ItemID);
+                ToolDataDict<T>.ArchData.Remove(data.ArchID);
             }
             ToolDataDict<T>.FileData.Remove(file);
         }
@@ -94,6 +95,12 @@ namespace ExtraToolCustomization.ToolData
                         DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ItemID} detected. Previous name: {ToolDataDict<T>.ItemData[data.ItemID].Name}, new name: {data.Name}");
                     ToolDataDict<T>.ItemData[data.ItemID] = data;
                 }
+                if (data.ArchID != 0)
+                {
+                    if (ToolDataDict<T>.ItemData.ContainsKey(data.ArchID))
+                        DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ArchID} detected. Previous name: {ToolDataDict<T>.ArchData[data.ArchID].Name}, new name: {data.Name}");
+                    ToolDataDict<T>.ArchData[data.ArchID] = data;
+                }
             }
         }
 
@@ -110,6 +117,13 @@ namespace ExtraToolCustomization.ToolData
             {
                 StringBuilder builder = new($"Found custom blocks for {ToolDataDict<T>.Name} item IDs: ");
                 builder.AppendJoin(", ", ToolDataDict<T>.ItemData.Keys.ToImmutableSortedSet());
+                DinoLogger.Log(builder.ToString());
+            }
+
+            if (ToolDataDict<T>.ArchData.Count > 0)
+            {
+                StringBuilder builder = new($"Found custom blocks for {ToolDataDict<T>.Name} archetype IDs: ");
+                builder.AppendJoin(", ", ToolDataDict<T>.ArchData.Keys.ToImmutableSortedSet());
                 DinoLogger.Log(builder.ToString());
             }
         }
@@ -159,9 +173,10 @@ namespace ExtraToolCustomization.ToolData
 
         internal void Init() { }
 
-        public T? GetItemData<T>(uint id) where T : IToolData => ToolDataDict<T>.ItemData.GetValueOrDefault(id);
-        public T? GetOfflineData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
-        public T? GetData<T>(uint offlineID, uint itemID) where T : IToolData
+        public static T? GetItemData<T>(uint id) where T : IToolData => ToolDataDict<T>.ItemData.GetValueOrDefault(id);
+        public static T? GetOfflineData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
+        public static T? GetArchData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
+        public static T? GetData<T>(uint offlineID, uint itemID, uint archID) where T : IToolData
         {
             T? data = default;
             if (offlineID != 0)
@@ -169,6 +184,9 @@ namespace ExtraToolCustomization.ToolData
 
             if (data == null && itemID != 0)
                 data = GetItemData<T>(itemID);
+
+            if (data == null && archID != 0)
+                data = GetArchData<T>(archID);
 
             return data;
         }

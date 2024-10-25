@@ -1,9 +1,13 @@
-﻿namespace ExtraToolCustomization.ToolData
+﻿using System.Text.Json.Serialization;
+
+namespace ExtraToolCustomization.ToolData
 {
     public sealed class MineData : IToolData
     {
         public uint OfflineID { get; set; } = 0;
         public uint ItemID { get; set; } = 0;
+        [JsonIgnore]
+        public uint ArchID {  get; set; } = 0;
         public string Name { get; set; } = string.Empty;
 
         public float Delay { get; set; } = 0;

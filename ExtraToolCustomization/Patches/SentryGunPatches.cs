@@ -115,7 +115,7 @@ namespace ExtraToolCustomization.Patches
             PlayerAgent source = weaponRayData.owner;
             if (!PlayerBackpackManager.TryGetBackpack(source.Owner, out var backpack)) return;
             if (!backpack.TryGetBackpackItem(InventorySlot.GearClass, out var item)) return;
-            var data = ToolDataManager.Current.GetOfflineData<SentryData>(item.GearIDRange.GetOfflineID());
+            var data = ToolDataManager.GetArchData<SentryData>(item.Instance.Cast<ItemEquippable>().ArchetypeID);
 
             if (data != null)
                 allowDirectionalBonus = data.BackDamage;

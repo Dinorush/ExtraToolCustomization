@@ -16,7 +16,7 @@ namespace ExtraToolCustomization.Patches
         private static void Post_Setup(MineDeployerFirstPerson __instance)
         {
             uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
-            var data = ToolDataManager.Current.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID);
+            var data = ToolDataManager.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID, 0);
             if (data != null)
             {
                 __instance.m_interactPlaceItem.InteractDuration = data.PlacementTime;
@@ -84,7 +84,7 @@ namespace ExtraToolCustomization.Patches
             if (__instance.m_isConsumable) return;
 
             uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
-            var data = ToolDataManager.Current.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID);
+            var data = ToolDataManager.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID, 0);
             if (data == null) return;
 
             MineDeployerInstance? mineDeployerInstance = item.GetItem().TryCast<MineDeployerInstance>();

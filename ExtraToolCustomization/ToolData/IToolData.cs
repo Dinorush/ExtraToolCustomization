@@ -4,6 +4,7 @@
     {
         public uint OfflineID { get; set; }
         public uint ItemID { get; set; }
+        public uint ArchID { get; set; }
         public string Name { get; set; }
     }
 }
