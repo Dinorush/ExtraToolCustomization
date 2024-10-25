@@ -7,7 +7,7 @@ namespace ExtraToolCustomization.ToolData
         public uint OfflineID { get; set; } = 0;
         public uint ItemID { get; set; } = 0;
         [JsonIgnore]
-        public uint ArchID {  get; set; } = 0;
+        public uint ArchetypeID {  get; set; } = 0;
         public string Name { get; set; } = string.Empty;
 
         public float Delay { get; set; } = 0;

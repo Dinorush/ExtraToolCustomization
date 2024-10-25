@@ -73,7 +73,7 @@ namespace ExtraToolCustomization.ToolData
             {
                 ToolDataDict<T>.OfflineData.Remove(data.OfflineID);
                 ToolDataDict<T>.ItemData.Remove(data.ItemID);
-                ToolDataDict<T>.ArchData.Remove(data.ArchID);
+                ToolDataDict<T>.ArchData.Remove(data.ArchetypeID);
             }
             ToolDataDict<T>.FileData.Remove(file);
         }
@@ -95,11 +95,11 @@ namespace ExtraToolCustomization.ToolData
                         DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ItemID} detected. Previous name: {ToolDataDict<T>.ItemData[data.ItemID].Name}, new name: {data.Name}");
                     ToolDataDict<T>.ItemData[data.ItemID] = data;
                 }
-                if (data.ArchID != 0)
+                if (data.ArchetypeID != 0)
                 {
-                    if (ToolDataDict<T>.ItemData.ContainsKey(data.ArchID))
-                        DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ArchID} detected. Previous name: {ToolDataDict<T>.ArchData[data.ArchID].Name}, new name: {data.Name}");
-                    ToolDataDict<T>.ArchData[data.ArchID] = data;
+                    if (ToolDataDict<T>.ItemData.ContainsKey(data.ArchetypeID))
+                        DinoLogger.Warning($"Duplicate {ToolDataDict<T>.Name} item ID {data.ArchetypeID} detected. Previous name: {ToolDataDict<T>.ArchData[data.ArchetypeID].Name}, new name: {data.Name}");
+                    ToolDataDict<T>.ArchData[data.ArchetypeID] = data;
                 }
             }
         }
