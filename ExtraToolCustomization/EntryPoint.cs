@@ -4,10 +4,11 @@ using HarmonyLib;
 using ExtraToolCustomization.Dependencies;
 using ExtraToolCustomization.ToolData;
 using ExtraToolCustomization.Patches;
+using ExtraToolCustomization.Networking.MineDeployer;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.2.0")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.3.0")]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin
     {
@@ -20,6 +21,7 @@ namespace ExtraToolCustomization
             {
                 new Harmony(MODNAME).PatchAll();
                 ToolDataManager.Current.Init();
+                MineDeployerManager.Init();
             }
             else
                 new Harmony(MODNAME).PatchAll(typeof(SentryGunPatches_BurstFix));
