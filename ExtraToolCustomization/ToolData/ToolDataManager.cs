@@ -15,8 +15,6 @@ namespace ExtraToolCustomization.ToolData
     {
         public static readonly ToolDataManager Current = new();
 
-        private readonly LiveEditListener _liveEditListener;
-
         private void FileChanged<T>(LiveEditEventArgs e) where T : IToolData
         {
             DinoLogger.Warning($"LiveEdit File Changed: {e.FullPath}");
@@ -134,13 +132,8 @@ namespace ExtraToolCustomization.ToolData
             if (!Directory.Exists(BasePath))
                 Directory.CreateDirectory(BasePath);
 
-            _liveEditListener = LiveEdit.CreateListener(BasePath, "*.json", true);
-            _liveEditListener.StopListen();
-
             LoadDirectory("Mine", MineTemplate.Template);
             LoadDirectory("Sentry", SentryTemplate.Template);
-
-            _liveEditListener.StartListen();
         }
 
         private void LoadDirectory<T>(string name, params T[] defaultT) where T : IToolData
@@ -166,9 +159,10 @@ namespace ExtraToolCustomization.ToolData
             }
             PrintCustomIDs<T>();
 
-            _liveEditListener.FileCreated += FileCreated<T>;
-            _liveEditListener.FileChanged += FileChanged<T>;
-            _liveEditListener.FileDeleted += FileDeleted<T>;
+            var listener = ToolDataDict<T>.InitListener(FilePath);
+            listener.FileCreated += FileCreated<T>;
+            listener.FileChanged += FileChanged<T>;
+            listener.FileDeleted += FileDeleted<T>;
         }
 
         internal void Init() { }

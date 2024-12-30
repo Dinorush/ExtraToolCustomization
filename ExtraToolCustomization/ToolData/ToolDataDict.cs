@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GTFO.API.Utilities;
+using System.Collections.Generic;
 
 namespace ExtraToolCustomization.ToolData
 {
@@ -9,5 +10,12 @@ namespace ExtraToolCustomization.ToolData
         public static readonly Dictionary<uint, T> OfflineData = new();
         public static readonly Dictionary<uint, T> ItemData = new();
         public static readonly Dictionary<uint, T> ArchData = new();
+        private static LiveEditListener? _listener;
+        
+        public static LiveEditListener InitListener(string path)
+        {
+            _listener = LiveEdit.CreateListener(path, "*.json", true);
+            return _listener;
+        }
     }
 }
