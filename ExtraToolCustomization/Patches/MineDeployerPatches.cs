@@ -24,6 +24,20 @@ namespace ExtraToolCustomization.Patches
             }
         }
 
+        [HarmonyPatch(typeof(PlayerBackpack), nameof(PlayerBackpack.SpawnAndEquipItem))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_ItemPickup(BackpackItem __result)
+        {
+            var data = ToolDataManager.GetItemData<MineData>(__result.ItemID);
+            if (data != null)
+            {
+                var deployer = __result.Instance.Cast<MineDeployerFirstPerson>();
+                deployer.m_interactPlaceItem.InteractDuration = data.PlacementTime;
+                deployer.m_timeBetweenPlacements = data.PlacementCooldown;
+            }
+        }
+
         [HarmonyPatch(typeof(PlayerBotActionDeployTripMine), nameof(PlayerBotActionDeployTripMine.PlaceTripMine))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
