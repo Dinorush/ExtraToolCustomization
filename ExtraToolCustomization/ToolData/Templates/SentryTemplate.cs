@@ -6,7 +6,7 @@
         {
             new()
             {
-                OfflineID = 0,
+                ArchetypeID = 0,
                 Name = "Sentry Gun",
                 BackDamage = false
             }
