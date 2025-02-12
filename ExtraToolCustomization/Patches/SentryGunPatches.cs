@@ -110,7 +110,7 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_FPGearSpawn(SentryGunFirstPerson __instance)
         {
-            SentryData? data = ToolDataManager.GetArchData<SentryData>(SentryGunInstance_Firing_Bullets.GetArchetypeDataForFireMode((eWeaponFireMode)__instance.GearIDRange.GetCompID(eGearComponent.FireMode))?.persistentID ?? 0);
+            SentryData? data = ToolDataManager.GetArchData<SentryData>(__instance.ArchetypeID);
 
             if (data != null)
             {
@@ -124,7 +124,7 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_SentrySpawn(SentryGunInstance __instance)
         {
-            var data = ToolDataManager.GetArchData<SentryData>(__instance.m_firing.Cast<SentryGunInstance_Firing_Bullets>().m_archetypeData.persistentID);
+            var data = ToolDataManager.GetArchData<SentryData>(__instance.ArchetypeID);
 
             if (data != null)
             {
@@ -144,7 +144,7 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_SentryStartScanning(SentryGunInstance __instance)
         {
-            var data = ToolDataManager.GetArchData<SentryData>(__instance.m_firing.Cast<SentryGunInstance_Firing_Bullets>().m_archetypeData.persistentID);
+            var data = ToolDataManager.GetArchData<SentryData>(__instance.ArchetypeID);
 
             if (data != null)
             {
