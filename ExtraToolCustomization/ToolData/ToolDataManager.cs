@@ -17,7 +17,7 @@ namespace ExtraToolCustomization.ToolData
 
         private void FileChanged<T>(LiveEditEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Changed: {e.FullPath}");
+            DinoLogger.Warning($"LiveEdit File Changed: {e.FileName}");
             LiveEdit.TryReadFileContent(e.FullPath, (content) =>
             {
                 ReadFileContent<T>(e.FullPath, content);
@@ -27,7 +27,7 @@ namespace ExtraToolCustomization.ToolData
 
         private void FileDeleted<T>(LiveEditEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Removed: {e.FullPath}");
+            DinoLogger.Warning($"LiveEdit File Removed: {e.FileName}");
 
             RemoveFile<T>(e.FullPath);
             PrintCustomIDs<T>();
@@ -35,7 +35,7 @@ namespace ExtraToolCustomization.ToolData
 
         private void FileCreated<T>(LiveEditEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Created: {e.FullPath}");
+            DinoLogger.Warning($"LiveEdit File Created: {e.FileName}");
             LiveEdit.TryReadFileContent(e.FullPath, (content) =>
             {
                 ReadFileContent<T>(e.FullPath, content);
@@ -145,13 +145,14 @@ namespace ExtraToolCustomization.ToolData
         private void CreateTemplate<T>(params T[] defaultT) where T : IToolData
         {
             string name = ToolDataDict<T>.Name;
-            string FilePath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
-            if (!Directory.Exists(FilePath))
+            string DirPath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
+            if (!Directory.Exists(DirPath))
             {
                 DinoLogger.Log($"No {name} directory detected. Creating template.");
-                Directory.CreateDirectory(FilePath);
+                Directory.CreateDirectory(DirPath);
             }
 
+            string FilePath = Path.Combine(DirPath, "Template.json");
             var file = File.CreateText(FilePath);
             file.WriteLine(TCJson.Serialize(new List<T>(defaultT)));
             file.Flush();
@@ -161,20 +162,20 @@ namespace ExtraToolCustomization.ToolData
         private void LoadDirectory<T>(string name, params T[] defaultT) where T : IToolData
         {
             ToolDataDict<T>.Name = name;
-            string FilePath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
-            if (!Directory.Exists(FilePath))
+            string DirPath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
+            if (!Directory.Exists(DirPath))
                 CreateTemplate(defaultT);
             else
                 DinoLogger.Log($"{name} directory detected.");
 
-            foreach (string confFile in Directory.EnumerateFiles(FilePath, "*.json", SearchOption.AllDirectories))
+            foreach (string confFile in Directory.EnumerateFiles(DirPath, "*.json", SearchOption.AllDirectories))
             {
                 string content = File.ReadAllText(confFile);
                 ReadFileContent<T>(confFile, content);
             }
             PrintCustomIDs<T>();
 
-            var listener = ToolDataDict<T>.InitListener(FilePath);
+            var listener = ToolDataDict<T>.InitListener(DirPath);
             listener.FileCreated += FileCreated<T>;
             listener.FileChanged += FileChanged<T>;
             listener.FileDeleted += FileDeleted<T>;
