@@ -1,10 +1,10 @@
 ﻿using CellMenu;
 using ExtraToolCustomization.ToolData;
-using ExtraToolCustomization.Utils;
 using GameData;
 using Gear;
 using HarmonyLib;
 using Player;
+using System;
 
 namespace ExtraToolCustomization.Patches
 {
@@ -103,6 +103,53 @@ namespace ExtraToolCustomization.Patches
         {
             if (_cachedArchetype != null)
                 __result = _cachedArchetype;
+        }
+
+        [HarmonyPatch(typeof(SentryGunFirstPerson), nameof(SentryGunFirstPerson.OnGearSpawnComplete))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_FPGearSpawn(SentryGunFirstPerson __instance)
+        {
+            SentryData? data = ToolDataManager.GetArchData<SentryData>(SentryGunInstance_Firing_Bullets.GetArchetypeDataForFireMode((eWeaponFireMode)__instance.GearIDRange.GetCompID(eGearComponent.FireMode))?.persistentID ?? 0);
+
+            if (data != null)
+            {
+                __instance.m_deployPickupInteractionDuration = data.PlacementTime;
+                __instance.m_interactPlaceItem.InteractDuration = data.PlacementTime;
+            }
+        }
+
+        [HarmonyPatch(typeof(SentryGunInstance), nameof(SentryGunInstance.OnGearSpawnComplete))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_SentrySpawn(SentryGunInstance __instance)
+        {
+            var data = ToolDataManager.GetArchData<SentryData>(__instance.m_firing.Cast<SentryGunInstance_Firing_Bullets>().m_archetypeData.persistentID);
+
+            if (data != null)
+            {
+                __instance.m_rotationAnimator.speed = SentryData.DefStartupDelay / Math.Max(0.01f, data.StartupDelay);
+                __instance.m_initialScanDelay = data.StartupDelay;
+                __instance.m_startScanTimer = Clock.Time + data.StartupDelay;
+                __instance.m_interactPickup.m_interactDuration = data.PickupTime;
+                var visuals = __instance.m_visuals.Cast<SentryGunInstance_ScannerVisuals_Plane>();
+                visuals.m_scanningColorOrg = visuals.m_scanningColor = data.ScanColor;
+                visuals.m_hasTargetColor = data.TargetColor;
+                visuals.SetVisualStatus(eSentryGunStatus.BootUp);
+            }
+        }
+
+        [HarmonyPatch(typeof(SentryGunInstance), nameof(SentryGunInstance.StartScanning))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_SentryStartScanning(SentryGunInstance __instance)
+        {
+            var data = ToolDataManager.GetArchData<SentryData>(__instance.m_firing.Cast<SentryGunInstance_Firing_Bullets>().m_archetypeData.persistentID);
+
+            if (data != null)
+            {
+                __instance.m_detection.Cast<SentryGunInstance_Detection>().m_scanningTimer = Clock.Time + data.ScanDelay;
+            }
         }
 
         [HarmonyPatch(typeof(BulletWeapon), nameof(BulletWeapon.BulletHit))]
