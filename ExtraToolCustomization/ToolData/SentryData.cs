@@ -5,7 +5,7 @@ namespace ExtraToolCustomization.ToolData
 {
     public sealed class SentryData : IToolData
     {
-        public const float DefStartupDelay = 3f;
+        public const float DefDeployTime = 3f;
 
         [JsonIgnore]
         public uint OfflineID { get; set; } = 0;
@@ -15,7 +15,7 @@ namespace ExtraToolCustomization.ToolData
         public uint ArchetypeID { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
         public bool BackDamage { get; set; } = false;
-        public float StartupDelay { get; set; } = 3f;
+        public float DeployTime { get; set; } = 3f;
         public float ScanDelay { get; set; } = 1.5f;
         public float PlacementTime { get; set; } = 0.6f;
         public float PickupTime { get; set; } = 0.6f;

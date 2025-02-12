@@ -128,9 +128,9 @@ namespace ExtraToolCustomization.Patches
 
             if (data != null)
             {
-                __instance.m_rotationAnimator.speed = SentryData.DefStartupDelay / Math.Max(0.01f, data.StartupDelay);
-                __instance.m_initialScanDelay = data.StartupDelay;
-                __instance.m_startScanTimer = Clock.Time + data.StartupDelay;
+                __instance.m_rotationAnimator.speed = SentryData.DefDeployTime / Math.Max(0.01f, data.DeployTime);
+                __instance.m_initialScanDelay = data.DeployTime;
+                __instance.m_startScanTimer = Clock.Time + data.DeployTime;
                 __instance.m_interactPickup.m_interactDuration = data.PickupTime;
                 var visuals = __instance.m_visuals.Cast<SentryGunInstance_ScannerVisuals_Plane>();
                 visuals.m_scanningColorOrg = visuals.m_scanningColor = data.ScanColor;
