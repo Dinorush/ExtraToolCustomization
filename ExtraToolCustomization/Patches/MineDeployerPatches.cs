@@ -69,17 +69,12 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_MineSpawned(MineDeployerInstance __instance, ref pItemSpawnData spawnData)
         {
-            if (!SNet.Master) return;
-
             if (!spawnData.owner.GetPlayer(out SNet_Player source)) return;
-
-            MineDeployerInstance_Detonate_Explosive? explosive = __instance.m_detonation.TryCast<MineDeployerInstance_Detonate_Explosive>();
-            if (explosive == null) return;
 
             if (!MineDeployerManager.HasMineDeployerID(source))
             {
                 // The packet that tells us the mine deployer IDs may be in transit. Store the mine for later modification.
-                MineDeployerManager.StoreMineDeployer(source, explosive);
+                MineDeployerManager.StoreMineDeployer(source, __instance);
                 return;
             }
 
@@ -87,7 +82,7 @@ namespace ExtraToolCustomization.Patches
             MineData? data = MineDeployerManager.GetMineData(deployerID);
             if (data == null) return;
 
-            MineDeployerManager.ApplyDataToMine(explosive, data);
+            MineDeployerManager.ApplyDataToMine(__instance, data);
         }
 
         [HarmonyPatch(typeof(MineDeployerFirstPerson), nameof(MineDeployerFirstPerson.OnStickyMineSpawned))]

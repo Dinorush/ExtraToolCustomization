@@ -2,7 +2,7 @@
 
 namespace ExtraToolCustomization.Networking.MineDeployer
 {
-    internal class MineDeployerSync : SyncedEventMasterOnly<MineDeployerID>
+    internal class MineDeployerSync : SyncedEvent<MineDeployerID>
     {
         public override string GUID => "MineID";
 
@@ -11,6 +11,11 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             if (!packet.source.GetPlayer(out SNet_Player source)) return;
 
             MineDeployerManager.Internal_ReceiveMineDeployerPacket(source.Lookup, packet);
+        }
+
+        protected override void ReceiveLocal(MineDeployerID packet)
+        {
+            Receive(packet);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace ExtraToolCustomization.JSON
         {
             _setting.Converters.Add(new JsonStringEnumConverter());
             _setting.Converters.Add(new LocalizedTextConverter());
+            _setting.Converters.Add(new ColorConverter());
         }
 
         public static T? Deserialize<T>(string json)

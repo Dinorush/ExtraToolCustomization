@@ -1,4 +1,6 @@
-﻿namespace ExtraToolCustomization.ToolData.Templates
+﻿using UnityEngine;
+
+namespace ExtraToolCustomization.ToolData.Templates
 {
     internal static class MineTemplate
     {
@@ -13,7 +15,19 @@
                 DistanceMax = 15f,
                 DamageMin = 15f,
                 DamageMax = 50f,
-                Force = 1000f
+                Force = 1000f,
+                BeamData = new()
+                {
+                    Color = Color.red,
+                    Length = 20f,
+                    Width = 1f
+                },
+                LightData = new()
+                {
+                    Color = Color.red,
+                    Range = 1f,
+                    Intensity = 0.03f
+                }
             },
             new()
             {
@@ -24,7 +38,19 @@
                 DistanceMax = 12f,
                 DamageMin = 10f,
                 DamageMax = 35f,
-                Force = 700f
+                Force = 700f,
+                BeamData = new()
+                {
+                    Color = Color.red,
+                    Length = 20f,
+                    Width = 1f
+                },
+                LightData = new()
+                {
+                    Color = new Color(1f, 0.12554f, 0.12554f),
+                    Range = 0.8f,
+                    Intensity = 0.3f
+                }
             }
         };
     }
