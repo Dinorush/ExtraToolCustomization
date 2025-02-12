@@ -136,21 +136,36 @@ namespace ExtraToolCustomization.ToolData
             LoadDirectory("Sentry", SentryTemplate.Template);
         }
 
+        internal void CreateTemplates()
+        {
+            CreateTemplate(MineTemplate.Template);
+            CreateTemplate(SentryTemplate.Template);
+        }
+
+        private void CreateTemplate<T>(params T[] defaultT) where T : IToolData
+        {
+            string name = ToolDataDict<T>.Name;
+            string FilePath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
+            if (!Directory.Exists(FilePath))
+            {
+                DinoLogger.Log($"No {name} directory detected. Creating template.");
+                Directory.CreateDirectory(FilePath);
+            }
+
+            var file = File.CreateText(FilePath);
+            file.WriteLine(TCJson.Serialize(new List<T>(defaultT)));
+            file.Flush();
+            file.Close();
+        }
+
         private void LoadDirectory<T>(string name, params T[] defaultT) where T : IToolData
         {
             ToolDataDict<T>.Name = name;
             string FilePath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
             if (!Directory.Exists(FilePath))
-            {
-                DinoLogger.Log($"No {name} directory detected. Creating {FilePath}/Template.json");
-                Directory.CreateDirectory(FilePath);
-                var file = File.CreateText(Path.Combine(FilePath, "Template.json"));
-                file.WriteLine(TCJson.Serialize(new List<T>(defaultT)));
-                file.Flush();
-                file.Close();
-            }
+                CreateTemplate(defaultT);
             else
-                DinoLogger.Log($"{name} directory detected. {FilePath}");
+                DinoLogger.Log($"{name} directory detected.");
 
             foreach (string confFile in Directory.EnumerateFiles(FilePath, "*.json", SearchOption.AllDirectories))
             {
@@ -169,7 +184,7 @@ namespace ExtraToolCustomization.ToolData
 
         public static T? GetItemData<T>(uint id) where T : IToolData => ToolDataDict<T>.ItemData.GetValueOrDefault(id);
         public static T? GetOfflineData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
-        public static T? GetArchData<T>(uint id) where T : IToolData => ToolDataDict<T>.OfflineData.GetValueOrDefault(id);
+        public static T? GetArchData<T>(uint id) where T : IToolData => ToolDataDict<T>.ArchData.GetValueOrDefault(id);
         public static T? GetData<T>(uint offlineID, uint itemID, uint archID) where T : IToolData
         {
             T? data = default;

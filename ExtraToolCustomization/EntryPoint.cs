@@ -23,6 +23,7 @@ namespace ExtraToolCustomization
                 new Harmony(MODNAME).PatchAll();
                 ToolDataManager.Current.Init();
                 MineDeployerManager.Init();
+                Configuration.Init();
             }
             else
                 new Harmony(MODNAME).PatchAll(typeof(SentryGunPatches_BurstFix));
