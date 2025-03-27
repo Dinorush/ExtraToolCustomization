@@ -25,10 +25,15 @@ namespace ExtraToolCustomization.Patches
             if (ammo + newAmmo < maxAmmo) return true;
 
             float result;
-            // If not picking up a sentry (ammo = 0), prevent gains from going above max cap or current ammo.
+            // Prevent gains from going above max cap or current ammo.
             // Otherwise you could place mines, get tool, and pick them up to overflow.
             if (newAmmo > 0 && ammo > 0)
-                result = inventorySlotAmmo.AmmoInPack = Math.Max(ammo, maxAmmo);
+            {
+                if (ammo >= maxAmmo || newAmmo >= maxAmmo)
+                    result = inventorySlotAmmo.AmmoInPack = Math.Max(ammo, newAmmo);
+                else
+                    result = inventorySlotAmmo.AmmoInPack = Math.Min(ammo + newAmmo, maxAmmo);
+            }
             else
                 result = inventorySlotAmmo.AmmoInPack += newAmmo;
 
@@ -49,11 +54,25 @@ namespace ExtraToolCustomization.Patches
 
             InventorySlotAmmo inventorySlotAmmo = __instance.GetInventorySlotAmmo(ammoType);
             float ammo = inventorySlotAmmo.AmmoInPack;
+            float maxAmmo = inventorySlotAmmo.AmmoMaxCap;
+            float newAmmo = delta;
 
-            // If it isn't picking up a sentry or doesn't exceed capacity, we don't care.
-            if (ammo > 0 || ammo + delta < inventorySlotAmmo.AmmoMaxCap) return true;
+            // If it doesn't exceed capacity, we don't care
+            if (ammo + delta < maxAmmo) return true;
 
-            float result = inventorySlotAmmo.AmmoInPack += delta;
+            float result;
+            // Sentry could have ammo even while down due to GtfXP adding ammo,
+            // so still need to prevent overflow
+            if (newAmmo > 0 && ammo > 0)
+            {
+                if (ammo >= maxAmmo || newAmmo >= maxAmmo)
+                    result = inventorySlotAmmo.AmmoInPack = Math.Max(ammo, newAmmo);
+                else
+                    result = inventorySlotAmmo.AmmoInPack = Math.Min(ammo + newAmmo, maxAmmo);
+            }
+            else
+                result = inventorySlotAmmo.AmmoInPack += newAmmo;
+
             inventorySlotAmmo.OnBulletsUpdateCallback?.Invoke(inventorySlotAmmo.BulletsInPack);
             __instance.NeedsSync = true;
             __instance.UpdateSlotAmmoUI(inventorySlotAmmo);
