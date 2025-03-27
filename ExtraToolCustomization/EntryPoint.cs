@@ -8,7 +8,7 @@ using ExtraToolCustomization.Networking.MineDeployer;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.4.1")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.4.2")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin
