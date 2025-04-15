@@ -24,6 +24,25 @@ namespace ExtraToolCustomization.Patches
     }
 
     [HarmonyPatch]
+    internal static class SentryGunPatches_DepletedFix
+    {
+        [HarmonyPatch(typeof(SentryGunInstance), nameof(SentryGunInstance.StopFiring))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_StopFiring(SentryGunInstance __instance)
+        {
+            if (__instance.Ammo < __instance.CostOfBullet)
+            {
+                var detection = __instance.m_detection.Cast<SentryGunInstance_Detection>();
+                detection.Target = null;
+                detection.TargetAimTrans = null;
+                detection.HasTarget = false;
+                detection.TargetIsTagged = false;
+            }
+        }
+    }
+
+    [HarmonyPatch]
     internal static class SentryGunPatches_ShotgunFix
     {
         private static Vector3? _cachedDir = null;
