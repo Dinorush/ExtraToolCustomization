@@ -1,5 +1,7 @@
 ﻿using CellMenu;
 using ExtraToolCustomization.ToolData;
+using ExtraToolCustomization.Utils;
+using FireRateFPSFix.Dependencies;
 using GameData;
 using Gear;
 using HarmonyLib;
@@ -152,20 +154,54 @@ namespace ExtraToolCustomization.Patches
             }
         }
 
+        private static IntPtr s_cachedHitDataPtr = IntPtr.Zero;
+        private static SentryData? s_cachedData;
+        private static bool s_hitFriendly;
         [HarmonyPatch(typeof(BulletWeapon), nameof(BulletWeapon.BulletHit))]
         [HarmonyPriority(Priority.Low)]
+        [HarmonyBefore(EWCWrapper.PLUGIN_GUID)]
+        [HarmonyWrapSafe]
         [HarmonyPrefix]
         private static void SetBackDamage(ref Weapon.WeaponHitData weaponRayData, ref bool allowDirectionalBonus)
         {
-            if (allowDirectionalBonus && weaponRayData.vfxBulletHit == null) return;
+            s_hitFriendly = false;
+            if (weaponRayData.Pointer != s_cachedHitDataPtr)
+            {
+                s_cachedHitDataPtr = weaponRayData.Pointer;
+                s_cachedData = null;
+                if (allowDirectionalBonus && weaponRayData.vfxBulletHit == null) return;
 
-            PlayerAgent source = weaponRayData.owner;
-            if (!PlayerBackpackManager.TryGetBackpack(source.Owner, out var backpack)) return;
-            if (!backpack.TryGetBackpackItem(InventorySlot.GearClass, out var item)) return;
-            var data = ToolDataManager.GetArchData<SentryData>(item.Instance.Cast<ItemEquippable>().ArchetypeID);
+                PlayerAgent source = weaponRayData.owner;
+                if (!PlayerBackpackManager.TryGetBackpack(source.Owner, out var backpack)) return;
+                if (!backpack.TryGetBackpackItem(InventorySlot.GearClass, out var item)) return;
+                s_cachedData = ToolDataManager.GetArchData<SentryData>(item.Instance.Cast<ItemEquippable>().ArchetypeID);
+            }
 
-            if (data != null)
-                allowDirectionalBonus = data.BackDamage;
+            if (s_cachedData == null) return;
+
+            allowDirectionalBonus = s_cachedData.BackDamage;
+            // Shotgun sentries with back damage get past sentry checks in other plugins because their vfx is null.
+            // This gives them a vfx so they don't count as guns in other plugins.
+            if (weaponRayData.vfxBulletHit == null)
+                weaponRayData.vfxBulletHit = EmptyFeedbackPlayer.Instance;
+
+            var damageable = DamageableUtil.GetDamageableFromRayHit(weaponRayData.rayHit);
+            if (damageable == null) return;
+
+            var agent = damageable.GetBaseAgent();
+            if (agent != null && agent.Type == Agents.AgentType.Player)
+            {
+                s_hitFriendly = true;
+                weaponRayData.damage *= s_cachedData.FriendlyDamageMulti;
+            }
+        }
+
+        [HarmonyPatch(typeof(BulletWeapon), nameof(BulletWeapon.BulletHit))]
+        [HarmonyPostfix]
+        private static void FixFFDamage(ref Weapon.WeaponHitData weaponRayData)
+        {
+            if (s_hitFriendly)
+                weaponRayData.damage /= s_cachedData!.FriendlyDamageMulti;
         }
     }
 }

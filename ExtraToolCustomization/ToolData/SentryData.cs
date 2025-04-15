@@ -15,6 +15,7 @@ namespace ExtraToolCustomization.ToolData
         public uint ArchetypeID { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
         public bool BackDamage { get; set; } = false;
+        public float FriendlyDamageMulti { get; set; } = 1f;
         public float DeployTime { get; set; } = 3f;
         public float ScanDelay { get; set; } = 1.5f;
         public float PlacementTime { get; set; } = 0.6f;
