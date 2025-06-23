@@ -1,28 +1,30 @@
 ﻿using Gear;
+using System;
+using System.Collections.Generic;
 
 namespace ExtraToolCustomization.Utils
 {
-    internal static class GearIDRangeExtensions
+    public static class GearIDRangeExtensions
     {
-        public static uint GetOfflineID(this GearIDRange gearIDRange)
+        private readonly static Dictionary<uint, uint> _checkSumLookup = new();
+
+        public static void CacheOfflineID(GearIDRange range) => range.GetOfflineID();
+
+        public static uint GetOfflineID(this GearIDRange? range)
         {
-            string itemInstanceId = gearIDRange.PlayfabItemInstanceId;
-            if (!itemInstanceId.Contains("OfflineGear_ID_"))
+            if (range == null) return 0;
+
+            if (_checkSumLookup.TryGetValue(range.m_checksum, out var id)) return id;
+
+            if (string.IsNullOrEmpty(range.PlayfabItemInstanceId)) return 0;
+
+            if (uint.TryParse(range.PlayfabItemInstanceId.AsSpan("OfflineGear_ID_".Length), out id))
             {
-                DinoLogger.Error($"Find PlayfabItemInstanceId without substring 'OfflineGear_ID_'! {itemInstanceId}");
-                return 0;
+                _checkSumLookup.TryAdd(range.m_checksum, id);
+                return id;
             }
 
-            try
-            {
-                uint offlineGearPersistentID = uint.Parse(itemInstanceId.Substring("OfflineGear_ID_".Length));
-                return offlineGearPersistentID;
-            }
-            catch
-            {
-                DinoLogger.Error("Caught exception while trying to parse persistentID of PlayerOfflineGearDB from GearIDRange, which means itemInstanceId could be ill-formated");
-                return 0;
-            }
+            return 0;
         }
     }
 }

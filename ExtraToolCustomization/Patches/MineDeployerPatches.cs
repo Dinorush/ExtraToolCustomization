@@ -15,7 +15,7 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_Setup(MineDeployerFirstPerson __instance)
         {
-            uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
+            uint offlineID = __instance.GearIDRange.GetOfflineID();
             var data = ToolDataManager.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID, 0);
             if (data != null)
             {
@@ -32,7 +32,9 @@ namespace ExtraToolCustomization.Patches
             var data = ToolDataManager.GetItemData<MineData>(__result.ItemID);
             if (data != null)
             {
-                var deployer = __result.Instance.Cast<MineDeployerFirstPerson>();
+                var deployer = __result.Instance.TryCast<MineDeployerFirstPerson>();
+                if (deployer == null) return;
+
                 deployer.m_interactPlaceItem.InteractDuration = data.PlacementTime;
                 deployer.m_timeBetweenPlacements = data.PlacementCooldown;
             }
@@ -43,10 +45,12 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPrefix]
         private static void Pre_PlaceMineBot(PlayerBotActionDeployTripMine __instance)
         {
-            if (!SNet.Master) return;
+            if (!SNet.Master || !PlayerBackpackManager.TryGetBackpack(__instance.m_agent.Owner, out var backpack)) return;
 
-            ItemEquippable item = __instance.m_desc.BackpackItem.Instance.TryCast<ItemEquippable>()!;
-            uint offlineID = item.GearIDRange?.GetOfflineID() ?? 0;
+            if (!backpack.TryGetBackpackItem(InventorySlot.GearClass, out var bpItem)) return;
+
+            ItemEquippable item = bpItem.Instance.Cast<ItemEquippable>();
+            uint offlineID = item.GearIDRange.GetOfflineID();
             MineDeployerManager.SendMineDeployerID(__instance.m_agent.Owner, offlineID, item.ItemDataBlock.persistentID);
         }
 
@@ -59,7 +63,7 @@ namespace ExtraToolCustomization.Patches
             // Need to send the IDs separately and modify the mine using stored IDs.
             if (__instance.CheckCanPlace())
             {
-                uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
+                uint offlineID = __instance.GearIDRange.GetOfflineID();
                 MineDeployerManager.SendMineDeployerID(__instance.Owner.Owner, offlineID, __instance.ItemDataBlock.persistentID);
             }
         }
@@ -92,13 +96,22 @@ namespace ExtraToolCustomization.Patches
         {
             if (__instance.m_isConsumable) return;
 
-            uint offlineID = __instance.GearIDRange?.GetOfflineID() ?? 0;
+            uint offlineID = __instance.GearIDRange.GetOfflineID();
             var data = ToolDataManager.GetData<MineData>(offlineID, __instance.ItemDataBlock.persistentID, 0);
             if (data == null) return;
 
             MineDeployerInstance? mineDeployerInstance = item.GetItem().TryCast<MineDeployerInstance>();
             if (mineDeployerInstance != null)
                 mineDeployerInstance.PickupInteraction.Cast<Interact_Timed>().InteractDuration = data.PickupTime;
+        }
+
+        [HarmonyPatch(typeof(CheckpointManager), nameof(CheckpointManager.OnStateChange))]
+        [HarmonyWrapSafe]
+        [HarmonyPostfix]
+        private static void Post_CheckpointLoaded(pCheckpointState oldState, bool isRecall)
+        {
+            if (oldState.isReloadingCheckpoint && isRecall)
+                MineDeployerManager.Reset();
         }
     }
 }

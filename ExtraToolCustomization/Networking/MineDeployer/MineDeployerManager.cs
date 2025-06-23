@@ -17,6 +17,12 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             _sync.Setup();
         }
 
+        internal static void Reset()
+        {
+            _storedMines.Clear();
+            _storedPackets.Clear();
+        }
+
         public static void SendMineDeployerID(SNet_Player source, uint offlineID, uint itemID)
         {
             MineDeployerID packet = default;
