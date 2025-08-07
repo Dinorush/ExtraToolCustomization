@@ -9,7 +9,7 @@ using GTFO.API;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.5.1")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.5.2")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin
@@ -29,8 +29,7 @@ namespace ExtraToolCustomization
             else
             {
                 var harmony = new Harmony(MODNAME);
-                harmony.PatchAll(typeof(SentryGunPatches_BurstFix));
-                harmony.PatchAll(typeof(SentryGunPatches_DepletedFix));
+                harmony.PatchAll(typeof(SentryGunPatches_AlwaysFix));
                 harmony.PatchAll(typeof(ToolAmmoPatches_BugFix));
             }
             Log.LogMessage("Loaded " + MODNAME);
