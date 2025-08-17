@@ -30,13 +30,15 @@ namespace ExtraToolCustomization.Patches
         }
 
         private static readonly Queue<AIG_CourseNode> s_nodeQueue = new();
+        private const float SentryPlaceDist = 3f;
         private static AIG_CourseNode[] GetNodesInSight(AIG_CourseNode originNode, Transform detectionSource, float maxRange, bool checkAngle)
         {
             AIG_SearchID.IncrementSearchID();
             ushort searchID = AIG_SearchID.SearchID;
+            maxRange += SentryPlaceDist;
             float maxRangeSqr = maxRange * maxRange;
-            Vector3 position = detectionSource.position;
             Vector3 forward = detectionSource.forward;
+            Vector3 position = detectionSource.position - SentryPlaceDist * forward;
             s_nodeQueue.Enqueue(originNode);
             List<AIG_CourseNode> nodeList = new();
 
