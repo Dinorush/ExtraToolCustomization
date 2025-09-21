@@ -39,12 +39,13 @@ namespace ExtraToolCustomization.Patches
             float maxRangeSqr = maxRange * maxRange;
             Vector3 forward = detectionSource.forward;
             Vector3 position = detectionSource.position - SentryPlaceDist * forward;
+
+            originNode.m_searchID = searchID;
             s_nodeQueue.Enqueue(originNode);
             List<AIG_CourseNode> nodeList = new();
 
             while (s_nodeQueue.TryDequeue(out var node))
             {
-                node.m_searchID = searchID;
                 nodeList.Add(node);
 
                 foreach (AIG_CoursePortal portal in node.m_portals)
@@ -53,7 +54,10 @@ namespace ExtraToolCustomization.Patches
                     if (oppositeNode == null || oppositeNode.m_searchID == searchID) continue;
 
                     if (BoundsInRange(portal.m_cullPortal.Bounds, position, forward, maxRangeSqr, checkAngle))
+                    {
+                        oppositeNode.m_searchID = searchID;
                         s_nodeQueue.Enqueue(oppositeNode);
+                    }
                 }
             }
             return nodeList.ToArray();
@@ -208,7 +212,7 @@ namespace ExtraToolCustomization.Patches
         {
             if (_cachedDir != null)
             {
-                __instance.MuzzleAlign.forward = (Vector3)_cachedDir;
+                __instance.MuzzleAlign.forward = _cachedDir.Value;
                 _cachedDir = null;
             }
         }

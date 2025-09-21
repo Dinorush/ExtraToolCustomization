@@ -4,7 +4,6 @@ using System.IO;
 using System.Text.Json;
 using ExtraToolCustomization.JSON;
 using ExtraToolCustomization.ToolData.Templates;
-using ExtraToolCustomization.Utils;
 using System.Text;
 using System.Collections.Immutable;
 using ExtraToolCustomization.Dependencies;

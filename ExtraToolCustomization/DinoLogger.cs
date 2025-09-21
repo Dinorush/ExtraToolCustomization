@@ -1,10 +1,10 @@
 ﻿using BepInEx.Logging;
 
-namespace ExtraToolCustomization.Utils
+namespace ExtraToolCustomization
 {
     internal static class DinoLogger
     {
-        private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource(EntryPoint.MODNAME);
+        private static ManualLogSource logger = Logger.CreateLogSource(EntryPoint.MODNAME);
 
         public static void Log(string format, params object[] args)
         {
