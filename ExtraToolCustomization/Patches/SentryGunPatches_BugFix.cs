@@ -26,19 +26,18 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPostfix]
         private static void Post_Setup(SentryGunInstance_Detection __instance, AIG_CourseNode spawnNode)
         {
+            __instance.m_core.Cast<SentryGunInstance>().CourseNode = spawnNode = DoorUtil.GetCorrectNode(__instance.DetectionSource.position, spawnNode);
             __instance.m_nodesToCheck = GetNodesInSight(spawnNode, __instance.DetectionSource, __instance.m_archetypeData.Sentry_DetectionMaxRange, __instance.m_archetypeData.Sentry_DetectionMaxAngle <= 90f);
         }
 
         private static readonly Queue<AIG_CourseNode> s_nodeQueue = new();
-        private const float SentryPlaceDist = 3f;
         private static AIG_CourseNode[] GetNodesInSight(AIG_CourseNode originNode, Transform detectionSource, float maxRange, bool checkAngle)
         {
             AIG_SearchID.IncrementSearchID();
             ushort searchID = AIG_SearchID.SearchID;
-            maxRange += SentryPlaceDist;
             float maxRangeSqr = maxRange * maxRange;
             Vector3 forward = detectionSource.forward;
-            Vector3 position = detectionSource.position - SentryPlaceDist * forward;
+            Vector3 position = detectionSource.position;
 
             originNode.m_searchID = searchID;
             s_nodeQueue.Enqueue(originNode);
@@ -53,7 +52,21 @@ namespace ExtraToolCustomization.Patches
                     AIG_CourseNode oppositeNode = portal.GetOppositeNode(node);
                     if (oppositeNode == null || oppositeNode.m_searchID == searchID) continue;
 
-                    if (BoundsInRange(portal.m_cullPortal.Bounds, position, forward, maxRangeSqr, checkAngle))
+                    var door = portal.m_door;
+                    if (door != null)
+                    {
+                        switch (door.LastStatus)
+                        {
+                            case LevelGeneration.eDoorStatus.Open:
+                            case LevelGeneration.eDoorStatus.Opening:
+                            case LevelGeneration.eDoorStatus.Destroyed:
+                                break;
+                            default:
+                                continue;
+                        }
+                    }
+
+                    if (BoundsInRange(portal.m_cullPortal.m_portalBounds, position, forward, maxRangeSqr, checkAngle))
                     {
                         oppositeNode.m_searchID = searchID;
                         s_nodeQueue.Enqueue(oppositeNode);
@@ -72,7 +85,7 @@ namespace ExtraToolCustomization.Patches
 
             diff = bounds.center - origin;
             float distToBox = Vector3.Dot(dir, diff);
-            if (distToBox >= 0) return true;
+            if (distToBox >= 0) return true; 
 
             float lenInDir = bounds.extents.x * Math.Abs(dir.x) + bounds.extents.y * Math.Abs(dir.y) + bounds.extents.z * Math.Abs(dir.z);
             return distToBox + lenInDir >= 0;
