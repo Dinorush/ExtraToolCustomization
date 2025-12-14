@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-namespace ExtraToolCustomization
+namespace ExtraToolCustomization.Utils
 {
     public static class DoorUtil
     {

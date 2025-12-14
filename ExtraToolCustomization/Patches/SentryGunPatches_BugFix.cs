@@ -1,5 +1,6 @@
 ﻿using AIGraph;
 using Enemies;
+using ExtraToolCustomization.Utils;
 using GameData;
 using HarmonyLib;
 using System;
@@ -52,20 +53,6 @@ namespace ExtraToolCustomization.Patches
                     AIG_CourseNode oppositeNode = portal.GetOppositeNode(node);
                     if (oppositeNode == null || oppositeNode.m_searchID == searchID) continue;
 
-                    var door = portal.m_door;
-                    if (door != null)
-                    {
-                        switch (door.LastStatus)
-                        {
-                            case LevelGeneration.eDoorStatus.Open:
-                            case LevelGeneration.eDoorStatus.Opening:
-                            case LevelGeneration.eDoorStatus.Destroyed:
-                                break;
-                            default:
-                                continue;
-                        }
-                    }
-
                     if (BoundsInRange(portal.m_cullPortal.m_portalBounds, position, forward, maxRangeSqr, checkAngle))
                     {
                         oppositeNode.m_searchID = searchID;
@@ -102,7 +89,7 @@ namespace ExtraToolCustomization.Patches
         [HarmonyPatch(typeof(SentryGunInstance_Detection), nameof(SentryGunInstance_Detection.CheckForTarget))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
-        private static bool Pre_CheckForTarget(SentryGunInstance_Detection __instance, ArchetypeDataBlock archetypeData, Il2Arrays.Il2CppReferenceArray<AIG_CourseNode> nodesToCheck, Transform detectionSource, ref EnemyAgent? __result)
+        private static bool Pre_CheckForTarget(ArchetypeDataBlock archetypeData, Il2Arrays.Il2CppReferenceArray<AIG_CourseNode> nodesToCheck, Transform detectionSource, ref EnemyAgent? __result)
         {
             if (nodesToCheck == null)
             {
@@ -116,7 +103,7 @@ namespace ExtraToolCustomization.Patches
             float maxAngle = archetypeData.Sentry_DetectionMaxAngle;
             float maxRangeSqr = archetypeData.Sentry_DetectionMaxRange * archetypeData.Sentry_DetectionMaxRange;
             int blockerMask = LayerManager.MASK_SENTRYGUN_DETECTION_BLOCKERS;
-
+            
             int numTargets = 0;
             foreach (var node in nodesToCheck)
             {
