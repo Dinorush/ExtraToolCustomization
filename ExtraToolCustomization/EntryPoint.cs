@@ -9,7 +9,7 @@ using GTFO.API;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.5.5")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.6.0")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin

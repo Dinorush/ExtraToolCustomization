@@ -18,6 +18,9 @@ namespace ExtraToolCustomization.ToolData
         public float DamageMin { get; set; } = 0;
         public float DamageMax { get; set; } = 0;
         public float Force { get; set; } = 0;
+        public float BubbleDelay { get; set; } = 0;
+        public int BubbleCount { get; set; } = 0;
+        public float BubbleBatchCooldown { get; set; } = 0.25f;
         public float PlacementTime { get; set; } = 0.5f;
         public float PlacementCooldown { get; set; } = 2f;
         public float PickupTime { get; set; } = 0.5f;

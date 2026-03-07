@@ -10,7 +10,7 @@ namespace ExtraToolCustomization.Networking.MineDeployer
         {
             if (!packet.source.GetPlayer(out SNet_Player source)) return;
 
-            MineDeployerManager.Internal_ReceiveMineDeployerPacket(source.Lookup, packet);
+            MineDeployerManager.Internal_ReceiveMineDeployerID(source.Lookup, packet);
         }
 
         protected override void ReceiveLocal(MineDeployerID packet)

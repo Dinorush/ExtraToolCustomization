@@ -75,18 +75,7 @@ namespace ExtraToolCustomization.Patches
         {
             if (!spawnData.owner.GetPlayer(out SNet_Player source)) return;
 
-            if (!MineDeployerManager.HasMineDeployerID(source))
-            {
-                // The packet that tells us the mine deployer IDs may be in transit. Store the mine for later modification.
-                MineDeployerManager.StoreMineDeployer(source, __instance);
-                return;
-            }
-
-            MineDeployerID deployerID = MineDeployerManager.PopMineDeployerID(source);
-            MineData? data = MineDeployerManager.GetMineData(deployerID);
-            if (data == null) return;
-
-            MineDeployerManager.ApplyDataToMine(__instance, data);
+            MineDeployerManager.Internal_ReceiveMineDeployed(source.Lookup, __instance);
         }
 
         [HarmonyPatch(typeof(MineDeployerFirstPerson), nameof(MineDeployerFirstPerson.OnStickyMineSpawned))]

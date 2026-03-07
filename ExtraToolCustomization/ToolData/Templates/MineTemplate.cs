@@ -51,6 +51,32 @@ namespace ExtraToolCustomization.ToolData.Templates
                     Range = 0.8f,
                     Intensity = 0.3f
                 }
+            },
+            new()
+            {
+                Name = "Consumable Foam Mine",
+                Delay = 0f,
+                Radius = 2f,
+                DistanceMin = 2.5f,
+                DistanceMax = 12f,
+                DamageMin = 10f,
+                DamageMax = 35f,
+                Force = 700f,
+                BubbleDelay = 0f,
+                BubbleCount = 17,
+                BubbleBatchCooldown = 0.25f,
+                BeamData = new()
+                {
+                    Color = Color.red,
+                    Length = 20f,
+                    Width = 1f
+                },
+                LightData = new()
+                {
+                    Color = new Color(1f, 0.12554f, 0.12554f),
+                    Range = 0.8f,
+                    Intensity = 0.3f
+                }
             }
         };
     }

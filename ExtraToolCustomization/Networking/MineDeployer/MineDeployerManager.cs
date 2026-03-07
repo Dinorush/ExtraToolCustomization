@@ -46,29 +46,34 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             return packet;
         }
 
-        internal static void Internal_ReceiveMineDeployerPacket(ulong lookup, MineDeployerID packet)
+        internal static void Internal_ReceiveMineDeployerID(ulong lookup, MineDeployerID packet)
         {
-            if (!_storedMines.ContainsKey(lookup))
-            {
+            if (_storedMines.Remove(lookup, out var instance))
+                TryApplyMineData(packet, instance);
+            else
                 // The packet that tells us to spawn the mine may be in transit. Store the IDs for later modification.
                 _storedPackets[lookup] = packet;
-                return;
-            }
-
-            MineData? data = GetMineData(packet);
-            MineDeployerInstance instance = _storedMines[lookup];
-            _storedMines.Remove(lookup);
-
-            if (data == null) return;
-
-            ApplyDataToMine(instance, data);
         }
 
-        public static MineData? GetMineData(MineDeployerID deployerID) => ToolDataManager.GetData<MineData>(deployerID.offlineID, deployerID.itemID, 0);
-
-        public static void ApplyDataToMine(MineDeployerInstance instance, MineData data)
+        internal static void Internal_ReceiveMineDeployed(ulong lookup, MineDeployerInstance instance)
         {
-            MineDeployerInstance_Detonate_Explosive? explosive = instance.m_detonation.Cast<MineDeployerInstance_Detonate_Explosive>();
+            if (_storedPackets.Remove(lookup, out var packet))
+                TryApplyMineData(packet, instance);
+            else
+                // The packet that tells us the mine deployer IDs may be in transit. Store the mine for later modification.
+                _storedMines[lookup] = instance;
+        }
+
+        private static void TryApplyMineData(MineDeployerID deployerID, MineDeployerInstance instance)
+        {
+            var data = ToolDataManager.GetData<MineData>(deployerID.offlineID, deployerID.itemID, 0);
+            if (data != null)
+                ApplyDataToMine(instance, data);
+        }
+
+        private static void ApplyDataToMine(MineDeployerInstance instance, MineData data)
+        {
+            MineDeployerInstance_Detonate_Explosive? explosive = instance.m_detonation.TryCast<MineDeployerInstance_Detonate_Explosive>();
             if (explosive != null)
             {
                 explosive.m_explosionDelay = data.Delay;
@@ -79,18 +84,35 @@ namespace ExtraToolCustomization.Networking.MineDeployer
                 explosive.m_damageMax = data.DamageMax - data.DamageMin;
                 explosive.m_explosionForce = data.Force;
             }
+            else
+            {
+                MineDeployerInstance_Detonate_Glue? glue = instance.m_detonation.TryCast<MineDeployerInstance_Detonate_Glue>();
+                if (glue != null)
+                {
+                    glue.m_explosionDelay = data.Delay;
+                    glue.m_radius = data.Radius;
+                    glue.m_distanceMin = data.DistanceMin;
+                    glue.m_distanceMax = data.DistanceMax;
+                    glue.m_damageMin = data.DamageMin;
+                    glue.m_damageMax = data.DamageMax - data.DamageMin;
+                    glue.m_initialExplosionDelay = data.BubbleDelay;
+                    glue.m_projCount = data.BubbleCount;
+                    glue.m_explosionDelay = data.BubbleBatchCooldown;
+                }
+            }
 
-            if (data.BeamData != null)
+            var beamData = data.BeamData;
+            if (beamData != null)
             {
                 var beam = instance.GetComponentInChildren<UnityEngine.LineRenderer>();
                 if (beam != null)
                 {
-                    beam.startColor = data.BeamData.Color;
-                    beam.startWidth = data.BeamData.Width;
-                    beam.endWidth = data.BeamData.Width;
+                    beam.startColor = beamData.Color;
+                    beam.startWidth = beamData.Width;
+                    beam.endWidth = beamData.Width;
                     beam.widthMultiplier = 1f;
-                    instance.m_detection.Cast<MineDeployerInstance_Detect_Laser>().m_maxLineDistance = data.BeamData.Length;
-                    float lenMod = data.BeamData.Length / MineBeamData.DefLength;
+                    instance.m_detection.Cast<MineDeployerInstance_Detect_Laser>().m_maxLineDistance = beamData.Length;
+                    float lenMod = beamData.Length / MineBeamData.DefLength;
                     var colorKeys = beam.colorGradient.colorKeys;
                     for (int i = 0; i < colorKeys.Count; i++)
                     {
@@ -101,28 +123,29 @@ namespace ExtraToolCustomization.Networking.MineDeployer
                 }
             }
 
-            if (data.LightData != null)
+            var lightData = data.LightData;
+            if (lightData != null)
             {
                 var light = instance.GetComponentInChildren<UnityEngine.Light>();
                 if (light != null)
                 {
-                    light.color = data.LightData.Color;
-                    light.range = data.LightData.Range;
-                    light.intensity = data.LightData.Intensity;
+                    light.color = lightData.Color;
+                    light.range = lightData.Range;
+                    light.intensity = lightData.Intensity;
                 }
 
                 var point = instance.GetComponentInChildren<FX_EffectSystem.FX_SimplePointLight>();
                 if (point != null)
                 {
-                    point.Color = data.LightData.Color;
-                    point.Range = data.LightData.Range;
-                    point.Intensity = data.LightData.Intensity;
+                    point.Color = lightData.Color;
+                    point.Range = lightData.Range;
+                    point.Intensity = lightData.Intensity;
                     var effectLight = point.Light;
                     if (effectLight != null)
                     {
-                        effectLight.Color = data.LightData.Color;
-                        effectLight.Range = data.LightData.Range;
-                        effectLight.Intensity = data.LightData.Intensity;
+                        effectLight.Color = lightData.Color;
+                        effectLight.Range = lightData.Range;
+                        effectLight.Intensity = lightData.Intensity;
                     }
                 }
             }
