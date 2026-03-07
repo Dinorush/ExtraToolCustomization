@@ -18,13 +18,11 @@ namespace ExtraToolCustomization.ToolData
         public float DamageMin { get; set; } = 0;
         public float DamageMax { get; set; } = 0;
         public float Force { get; set; } = 0;
-        public float BubbleDelay { get; set; } = 0;
-        public int BubbleCount { get; set; } = 0;
-        public float BubbleBatchCooldown { get; set; } = 0.25f;
         public float PlacementTime { get; set; } = 0.5f;
         public float PlacementCooldown { get; set; } = 2f;
         public float PickupTime { get; set; } = 0.5f;
 
+        public MineFoamData? FoamData { get; set; } = null;
         public MineBeamData? BeamData { get; set; } = null;
         public MineLightData? LightData { get; set; } = null;
     }
@@ -43,5 +41,15 @@ namespace ExtraToolCustomization.ToolData
         public Color Color { get; set; } = Color.black;
         public float Intensity { get; set; } = 0;
         public float Range { get; set; } = 0;        
+    }
+
+    public sealed class MineFoamData
+    {
+        public float BubbleDelay { get; set; } = 0;
+        public int BubbleCount { get; set; } = 0;
+        public float BubbleAngle { get; set; } = 14f;
+        public float BubbleSpeedMin { get; set; } = 7f;
+        public float BubbleSpeedMax { get; set; } = 13f;
+        public float BubbleBatchCooldown { get; set; } = 0.25f;
     }
 }

@@ -95,9 +95,16 @@ namespace ExtraToolCustomization.Networking.MineDeployer
                     glue.m_distanceMax = data.DistanceMax;
                     glue.m_damageMin = data.DamageMin;
                     glue.m_damageMax = data.DamageMax - data.DamageMin;
-                    glue.m_initialExplosionDelay = data.BubbleDelay;
-                    glue.m_projCount = data.BubbleCount;
-                    glue.m_explosionDelay = data.BubbleBatchCooldown;
+                    
+                    var foamData = data.FoamData;
+                    if (foamData != null)
+                    {
+                        glue.m_initialExplosionDelay = foamData.BubbleDelay;
+                        glue.m_projCount = foamData.BubbleCount;
+                        glue.m_explosionDelay = foamData.BubbleBatchCooldown;
+                        glue.m_projAngMinMax = new UnityEngine.Vector2(-foamData.BubbleAngle, foamData.BubbleAngle);
+                        glue.m_projVelMinMax = new UnityEngine.Vector2(foamData.BubbleSpeedMin, foamData.BubbleSpeedMax);
+                    }
                 }
             }
 

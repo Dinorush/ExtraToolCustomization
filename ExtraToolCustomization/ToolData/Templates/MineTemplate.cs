@@ -62,9 +62,15 @@ namespace ExtraToolCustomization.ToolData.Templates
                 DamageMin = 10f,
                 DamageMax = 35f,
                 Force = 700f,
-                BubbleDelay = 0f,
-                BubbleCount = 17,
-                BubbleBatchCooldown = 0.25f,
+                FoamData = new()
+                {
+                    BubbleDelay = 0f,
+                    BubbleCount = 17,
+                    BubbleBatchCooldown = 0.25f,
+                    BubbleAngle = 14f,
+                    BubbleSpeedMin = 7f,
+                    BubbleSpeedMax = 13f
+                },
                 BeamData = new()
                 {
                     Color = Color.red,
