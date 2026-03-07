@@ -73,13 +73,13 @@ namespace ExtraToolCustomization.ToolData.Templates
                 },
                 BeamData = new()
                 {
-                    Color = Color.red,
+                    Color = new Color(0f, 0.38432f, 1f),
                     Length = 20f,
                     Width = 1f
                 },
                 LightData = new()
                 {
-                    Color = new Color(1f, 0.12554f, 0.12554f),
+                    Color = new Color(0.1255f, 0.549f, 1f),
                     Range = 0.8f,
                     Intensity = 0.3f
                 }
