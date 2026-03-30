@@ -6,15 +6,22 @@ using ExtraToolCustomization.ToolData;
 using ExtraToolCustomization.Patches;
 using ExtraToolCustomization.Networking.MineDeployer;
 using GTFO.API;
+using System;
 
 namespace ExtraToolCustomization
 {
-    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.6.1")]
+    [BepInPlugin("Dinorush." + MODNAME, MODNAME, "1.7.0")]
     [BepInDependency("dev.gtfomodding.gtfo-api", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(MTFOWrapper.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     internal sealed class EntryPoint : BasePlugin
     {
         public const string MODNAME = "ExtraToolCustomization";
+
+        public static event Action? OnCheckpointReached;
+        public static event Action? OnCheckpointReloaded;
+
+        internal static void InvokeCheckpointReached() => OnCheckpointReached?.Invoke();
+        internal static void InvokeCheckpointReloaded() => OnCheckpointReloaded?.Invoke();
 
         public override void Load()
         {
@@ -25,6 +32,7 @@ namespace ExtraToolCustomization
                 MineDeployerManager.Init();
                 Configuration.Init();
                 LevelAPI.OnLevelCleanup += MineDeployerManager.Reset;
+                LevelAPI.OnLevelCleanup += CheckpointPatches.OnCleanup;
             }
             else
             {

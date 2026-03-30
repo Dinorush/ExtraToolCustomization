@@ -144,7 +144,6 @@ namespace ExtraToolCustomization.Patches
             return false;
         }
 
-
         [HarmonyPatch(typeof(PlayerBotActionDeployTripMine), nameof(PlayerBotActionDeployTripMine.PlaceTripMine))]
         [HarmonyWrapSafe]
         [HarmonyPrefix]
@@ -197,15 +196,6 @@ namespace ExtraToolCustomization.Patches
             MineDeployerInstance? mineDeployerInstance = item.GetItem().TryCast<MineDeployerInstance>();
             if (mineDeployerInstance != null)
                 mineDeployerInstance.PickupInteraction.Cast<Interact_Timed>().InteractDuration = data.PickupTime;
-        }
-
-        [HarmonyPatch(typeof(CheckpointManager), nameof(CheckpointManager.OnStateChange))]
-        [HarmonyWrapSafe]
-        [HarmonyPostfix]
-        private static void Post_CheckpointLoaded(pCheckpointState oldState, bool isRecall)
-        {
-            if (oldState.isReloadingCheckpoint && isRecall)
-                MineDeployerManager.Reset();
         }
     }
 }

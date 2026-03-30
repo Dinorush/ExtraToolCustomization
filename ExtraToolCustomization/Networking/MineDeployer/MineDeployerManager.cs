@@ -1,5 +1,6 @@
 ﻿using ExtraToolCustomization.ToolData;
 using SNetwork;
+using System;
 using System.Collections.Generic;
 using static SNetwork.SNetStructs;
 
@@ -8,20 +9,44 @@ namespace ExtraToolCustomization.Networking.MineDeployer
     public static class MineDeployerManager
     {
         private static readonly MineDeployerSync _sync = new();
-
-        internal static Dictionary<ulong, MineDeployerID> _storedPackets = new();
-        internal static Dictionary<ulong, MineDeployerInstance> _storedMines = new();
+        private static readonly Dictionary<ulong, MineDeployerID> _storedPackets = new();
+        private static readonly Dictionary<ulong, MineDeployerInstance> _storedMines = new();
+        private static readonly Dictionary<ushort, MineData> _storedMineData = new();
+        private static readonly Dictionary<ushort, MineData> _liveMineData = new();
 
         internal static void Init()
         {
             _sync.Setup();
+            EntryPoint.OnCheckpointReached += OnCheckpointReached;
+            EntryPoint.OnCheckpointReloaded += OnCheckpointReloaded;
         }
 
-        internal static void Reset()
+        internal static void Reset() => ResetStorage();
+
+        private static void ResetStorage(bool checkpoint = false)
         {
             _storedMines.Clear();
             _storedPackets.Clear();
+            _liveMineData.Clear();
+            if (!checkpoint)
+                _storedMineData.Clear();
+            else
+            {
+                _liveMineData.EnsureCapacity(_storedMineData.Count);
+                foreach (var kv in _storedMineData)
+                    _liveMineData[kv.Key] = kv.Value;
+            }
         }
+
+        private static void OnCheckpointReached()
+        {
+            _storedMineData.Clear();
+            _storedMineData.EnsureCapacity(_liveMineData.Count);
+            foreach (var kv in _liveMineData)
+                _storedMineData[kv.Key] = kv.Value;
+        }
+
+        private static void OnCheckpointReloaded() => ResetStorage(checkpoint: true);
 
         public static void SendMineDeployerID(SNet_Player source, uint offlineID, uint itemID)
         {
@@ -31,19 +56,6 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             packet.offlineID = (ushort) offlineID;
 
             _sync.Send(packet);
-        }
-
-        public static bool HasMineDeployerID(SNet_Player source) => _storedPackets.ContainsKey(source.Lookup);
-
-        public static void StoreMineDeployer(SNet_Player source, MineDeployerInstance instance) => _storedMines[source.Lookup] = instance;
-
-        public static MineDeployerID PopMineDeployerID(SNet_Player source)
-        {
-            if (!HasMineDeployerID(source)) return default;
-            
-            MineDeployerID packet = _storedPackets[source.Lookup];
-            _storedPackets.Remove(source.Lookup);
-            return packet;
         }
 
         internal static void Internal_ReceiveMineDeployerID(ulong lookup, MineDeployerID packet)
@@ -57,6 +69,8 @@ namespace ExtraToolCustomization.Networking.MineDeployer
 
         internal static void Internal_ReceiveMineDeployed(ulong lookup, MineDeployerInstance instance)
         {
+            if (TryRestoreMineData(instance)) return;
+
             if (_storedPackets.Remove(lookup, out var packet))
                 TryApplyMineData(packet, instance);
             else
@@ -68,7 +82,21 @@ namespace ExtraToolCustomization.Networking.MineDeployer
         {
             var data = ToolDataManager.GetData<MineData>(deployerID.offlineID, deployerID.itemID, 0);
             if (data != null)
+            {
+                var key = instance.Replicator.Key;
+                if (_liveMineData.TryAdd(key, data))
+                    instance.m_detonation.add_OnDetonationDone(new Action(() => _liveMineData.Remove(key)));
                 ApplyDataToMine(instance, data);
+            }
+        }
+
+        private static bool TryRestoreMineData(MineDeployerInstance instance)
+        {
+            if (!_storedMineData.TryGetValue(instance.Replicator.Key, out var data)) return false;
+
+            ApplyDataToMine(instance, data);
+            instance.PickupInteraction.Cast<Interact_Timed>().InteractDuration = data.PickupTime;
+            return true;
         }
 
         private static void ApplyDataToMine(MineDeployerInstance instance, MineData data)
