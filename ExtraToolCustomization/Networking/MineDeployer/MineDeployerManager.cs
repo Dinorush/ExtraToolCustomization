@@ -100,8 +100,6 @@ namespace ExtraToolCustomization.Networking.MineDeployer
 
         private static bool TryRestoreMineData(MineDeployerInstance instance)
         {
-            if (instance.gameObject == null) return true;
-
             if (!_storedMineData.TryGetValue(instance.Replicator.Key, out var data)) return false;
 
             ApplyDataToMine(instance, data);
