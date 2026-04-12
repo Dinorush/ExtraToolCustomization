@@ -9,7 +9,7 @@ namespace ExtraToolCustomization.Networking.MineDeployer
     public static class MineDeployerManager
     {
         private static readonly MineDeployerSync _sync = new();
-        private static readonly Dictionary<ulong, MineDeployerID> _storedPackets = new();
+        private static readonly Dictionary<ulong, Queue<MineDeployerID>> _storedPackets = new();
         private static readonly Dictionary<ulong, MineDeployerInstance> _storedMines = new();
         private static readonly Dictionary<ushort, MineData> _storedMineData = new();
         private static readonly Dictionary<ushort, MineData> _liveMineData = new();
@@ -63,15 +63,21 @@ namespace ExtraToolCustomization.Networking.MineDeployer
             if (_storedMines.Remove(lookup, out var instance))
                 TryApplyMineData(packet, instance);
             else
+            {
                 // The packet that tells us to spawn the mine may be in transit. Store the IDs for later modification.
-                _storedPackets[lookup] = packet;
+                // Store in queue since fast deployers may deploy 2+ before it spawns the first.
+                // (Place packet is client -> players, mine packet is client -> host -> players)
+                if (!_storedPackets.TryGetValue(lookup, out var queue))
+                    _storedPackets.Add(lookup, queue = new());
+                queue.Enqueue(packet);
+            }
         }
 
         internal static void Internal_ReceiveMineDeployed(ulong lookup, MineDeployerInstance instance)
         {
             if (TryRestoreMineData(instance)) return;
 
-            if (_storedPackets.Remove(lookup, out var packet))
+            if (_storedPackets.TryGetValue(lookup, out var queue) && queue.TryDequeue(out var packet))
                 TryApplyMineData(packet, instance);
             else
                 // The packet that tells us the mine deployer IDs may be in transit. Store the mine for later modification.
@@ -80,6 +86,8 @@ namespace ExtraToolCustomization.Networking.MineDeployer
 
         private static void TryApplyMineData(MineDeployerID deployerID, MineDeployerInstance instance)
         {
+            if (instance == null || instance.gameObject == null) return;
+
             var data = ToolDataManager.GetData<MineData>(deployerID.offlineID, deployerID.itemID, 0);
             if (data != null)
             {
