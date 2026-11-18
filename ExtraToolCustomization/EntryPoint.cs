@@ -33,14 +33,10 @@ namespace ExtraToolCustomization
                 Configuration.Init();
                 LevelAPI.OnLevelCleanup += MineDeployerManager.Reset;
                 LevelAPI.OnLevelCleanup += CheckpointPatches.OnCleanup;
+                DinoLogger.Log("Loaded " + MODNAME);
             }
             else
-            {
-                var harmony = new Harmony(MODNAME);
-                harmony.PatchAll(typeof(ToolAmmoPatches_BugFix));
-            }
-            Log.LogMessage("Loaded " + MODNAME);
-
+                DinoLogger.Warning($"MTFO not detected or has no Custom folder, skipping...");
         }
     }
 }
