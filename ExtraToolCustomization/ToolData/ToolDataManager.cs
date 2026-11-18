@@ -14,35 +14,36 @@ namespace ExtraToolCustomization.ToolData
     {
         public static readonly ToolDataManager Current = new();
 
-        private void FileChanged<T>(LiveEditEventArgs e) where T : IToolData
+        private void FileChanged<T>(FileEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Changed: {e.FileName}");
-            LiveEdit.TryReadFileContent(e.FullPath, (content) =>
-            {
-                ReadFileContent<T>(e.FullPath, content);
-                PrintCustomIDs<T>();
-            });
+            DinoLogger.Warning($"File Changed: {e.FileName}");
+            ReadFileContent<T>(e.FullPath, e.ReadContent());
+            PrintCustomIDs<T>();
         }
 
-        private void FileDeleted<T>(LiveEditEventArgs e) where T : IToolData
+        private void FileDeleted<T>(FileEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Removed: {e.FileName}");
+            DinoLogger.Warning($"File Removed: {e.FileName}");
 
             RemoveFile<T>(e.FullPath);
             PrintCustomIDs<T>();
         }
 
-        private void FileCreated<T>(LiveEditEventArgs e) where T : IToolData
+        private void FileCreated<T>(FileEventArgs e) where T : IToolData
         {
-            DinoLogger.Warning($"LiveEdit File Created: {e.FileName}");
-            LiveEdit.TryReadFileContent(e.FullPath, (content) =>
-            {
-                ReadFileContent<T>(e.FullPath, content);
-                PrintCustomIDs<T>();
-            });
+            DinoLogger.Warning($"File Created: {e.FileName}");
+            ReadFileContent<T>(e.FullPath, e.ReadContent());
+            PrintCustomIDs<T>();
         }
 
-        private void ReadFileContent<T>(string file, string content) where T : IToolData
+        private void FileRenamed<T>(FileRenamedEventArgs e) where T : IToolData
+        {
+            DinoLogger.Warning($"File Renamed: {e.OldFileName} -> {e.FileName}");
+            if (ToolDataDict<T>.FileData.Remove(e.OldFullPath, out var data))
+                ToolDataDict<T>.FileData[e.FullPath] = data;
+        }
+
+        private static void ReadFileContent<T>(string file, string content) where T : IToolData
         {
             RemoveFile<T>(file);
 
@@ -101,7 +102,7 @@ namespace ExtraToolCustomization.ToolData
             }
         }
 
-        private void PrintCustomIDs<T>() where T : IToolData
+        private static void PrintCustomIDs<T>() where T : IToolData
         {
             if (ToolDataDict<T>.OfflineData.Count > 0)
             {
@@ -141,7 +142,7 @@ namespace ExtraToolCustomization.ToolData
             CreateTemplate(SentryTemplate.Template);
         }
 
-        private void CreateTemplate<T>(params T[] defaultT) where T : IToolData
+        private static void CreateTemplate<T>(params T[] defaultT) where T : IToolData
         {
             string name = ToolDataDict<T>.Name;
             string DirPath = Path.Combine(MTFOWrapper.CustomPath, EntryPoint.MODNAME, name);
@@ -174,10 +175,11 @@ namespace ExtraToolCustomization.ToolData
             }
             PrintCustomIDs<T>();
 
-            var listener = ToolDataDict<T>.InitListener(DirPath);
-            listener.FileCreated += FileCreated<T>;
-            listener.FileChanged += FileChanged<T>;
-            listener.FileDeleted += FileDeleted<T>;
+            var sfsw = ToolDataDict<T>.CreateSFSW(DirPath);
+            sfsw.OnCreated += FileCreated<T>;
+            sfsw.OnChanged += FileChanged<T>;
+            sfsw.OnDeleted += FileDeleted<T>;
+            sfsw.OnRenamed += FileRenamed<T>;
         }
 
         internal void Init() { }

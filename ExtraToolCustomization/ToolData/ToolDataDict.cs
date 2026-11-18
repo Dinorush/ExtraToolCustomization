@@ -10,12 +10,10 @@ namespace ExtraToolCustomization.ToolData
         public static readonly Dictionary<uint, T> OfflineData = new();
         public static readonly Dictionary<uint, T> ItemData = new();
         public static readonly Dictionary<uint, T> ArchData = new();
-        private static LiveEditListener? _listener;
         
-        public static LiveEditListener InitListener(string path)
+        public static SafeFileSystemWatcher CreateSFSW(string path)
         {
-            _listener = LiveEdit.CreateListener(path, "*.json", true);
-            return _listener;
+            return SafeFileSystemWatcher.Create(path, new string[] { "*.json" }, true);
         }
     }
 }
