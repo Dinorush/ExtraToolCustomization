@@ -3,10 +3,7 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using ExtraToolCustomization.Dependencies;
 using ExtraToolCustomization.ToolData;
-using ExtraToolCustomization.Patches;
 using ExtraToolCustomization.Networking.MineDeployer;
-using GTFO.API;
-using System;
 
 namespace ExtraToolCustomization
 {
@@ -17,12 +14,6 @@ namespace ExtraToolCustomization
     {
         public const string MODNAME = "ExtraToolCustomization";
 
-        public static event Action? OnCheckpointReached;
-        public static event Action? OnCheckpointReloaded;
-
-        internal static void InvokeCheckpointReached() => OnCheckpointReached?.Invoke();
-        internal static void InvokeCheckpointReloaded() => OnCheckpointReloaded?.Invoke();
-
         public override void Load()
         {
             if (MTFOWrapper.HasMTFO && MTFOWrapper.HasCustomContent)
@@ -31,8 +22,6 @@ namespace ExtraToolCustomization
                 ToolDataManager.Current.Init();
                 MineDeployerManager.Init();
                 Configuration.Init();
-                LevelAPI.OnLevelCleanup += MineDeployerManager.Reset;
-                LevelAPI.OnLevelCleanup += CheckpointPatches.OnCleanup;
                 DinoLogger.Log("Loaded " + MODNAME);
             }
             else

@@ -1,4 +1,5 @@
 ﻿using ExtraToolCustomization.ToolData;
+using GTFO.API;
 using SNetwork;
 using System;
 using System.Collections.Generic;
@@ -17,8 +18,9 @@ namespace ExtraToolCustomization.Networking.MineDeployer
         internal static void Init()
         {
             _sync.Setup();
-            EntryPoint.OnCheckpointReached += OnCheckpointReached;
-            EntryPoint.OnCheckpointReloaded += OnCheckpointReloaded;
+            EventAPI.OnCheckpointReached += OnCheckpointReached;
+            EventAPI.OnCheckpointReloaded += OnCheckpointReloaded;
+            LevelAPI.OnLevelCleanup += Reset;
         }
 
         internal static void Reset() => ResetStorage();
