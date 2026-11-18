@@ -3,6 +3,7 @@ using BepInEx;
 using System.IO;
 using GTFO.API.Utilities;
 using ExtraToolCustomization.ToolData;
+using System;
 
 namespace ExtraToolCustomization
 {
@@ -22,13 +23,12 @@ namespace ExtraToolCustomization
 
         internal static void Init()
         {
-            LiveEditListener listener = LiveEdit.CreateListener(Paths.ConfigPath, EntryPoint.MODNAME + ".cfg", false);
-            listener.FileChanged += OnFileChanged;
+            SafeFileSystemWatcher.Create(configFile);
+            configFile.ConfigReloaded += OnFileChanged;
         }
 
-        private static void OnFileChanged(LiveEditEventArgs _)
+        private static void OnFileChanged(object? sender, EventArgs e)
         {
-            configFile.Reload();
             CheckAndRefreshTemplate();
         }
 
